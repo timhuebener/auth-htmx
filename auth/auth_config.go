@@ -18,11 +18,7 @@ type Config struct {
 }
 
 // GenerateProviders generates a map of provider based on the given configuration.
-func GenerateProviders(
-	ctx context.Context,
-	config Config,
-	redirectURL string,
-) (pp map[string]oauth.Provider, err error) {
+func GenerateProviders(ctx context.Context, config Config, redirectURL string) (pp map[string]oauth.Provider, err error) {
 	pp = make(map[string]oauth.Provider)
 	for _, p := range config.Providers {
 		switch p.Type {

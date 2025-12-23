@@ -7,7 +7,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/base64"
-	"encoding/hex"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -27,10 +26,10 @@ import (
 	"github.com/Darkness4/auth-htmx/database/user"
 	"github.com/Darkness4/auth-htmx/handler"
 	"github.com/Darkness4/auth-htmx/jwt"
+	"github.com/Darkness4/auth-htmx/security/csrf"
 	"github.com/Masterminds/sprig/v3"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-webauthn/webauthn/webauthn"
-	"github.com/gorilla/csrf"
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/hlog"
@@ -98,12 +97,6 @@ var app = &cli.Command{
 	Action: func(ctx context.Context, _ *cli.Command) error {
 		log.Level(zerolog.DebugLevel)
 
-		key, err := hex.DecodeString(hexKey)
-		if err != nil {
-			panic(err)
-		}
-
-		// Parse config
 		var config auth.Config
 		if err := func() error {
 			file, err := os.Open(configPath)
@@ -132,6 +125,7 @@ var app = &cli.Command{
 		r := chi.NewRouter()
 		r.Use(jwt.Secret(jwtSecret).Middleware)
 		r.Use(hlog.NewHandler(log.Logger))
+		r.Use(csrf.Middleware)
 
 		// DB
 		d, err := sql.Open("sqlite", dbFile)
@@ -155,8 +149,8 @@ var app = &cli.Command{
 		}
 
 		webAuthn, err := webauthn.New(&webauthn.Config{
-			RPDisplayName: "Auth HTMX",  // Display Name for your site
-			RPID:          u.Hostname(), // Generally the domain name for your site
+			RPDisplayName: "Auth HTMX",
+			RPID:          u.Hostname(),
 			RPOrigins:     []string{publicURL},
 		})
 		if err != nil {
@@ -195,7 +189,7 @@ var app = &cli.Command{
 		// Pages rendering
 		var renderFn http.HandlerFunc = func(w http.ResponseWriter, r *http.Request) {
 			path := filepath.Clean(r.URL.Path)
-			path = filepath.Clean(fmt.Sprintf("pages/%s/page.tmpl", path))
+			path = filepath.Clean(fmt.Sprintf("pages/%s/page.gohtml", path))
 
 			claims, _ := jwt.GetClaimsFromRequest(r)
 
@@ -247,7 +241,7 @@ var app = &cli.Command{
 		r.Handle("/static/*", http.FileServer(http.FS(static)))
 
 		log.Info().Msg("listening")
-		return http.ListenAndServe(":3000", csrf.Protect(key)(r))
+		return http.ListenAndServe(":3000", r)
 	},
 }
 

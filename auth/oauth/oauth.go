@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/Darkness4/auth-htmx/jwt"
-	"github.com/gorilla/csrf"
+	"github.com/Darkness4/auth-htmx/security/csrf"
 	"github.com/rs/zerolog/log"
 )
 
@@ -27,8 +27,8 @@ func (a *OAuth) Login() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		p := val.Get("provider")
 
+		p := val.Get("provider")
 		provider, ok := a.Providers[strings.ToLower(p)]
 		if !ok {
 			http.Error(w, "auth provider not known", http.StatusUnauthorized)
@@ -37,9 +37,9 @@ func (a *OAuth) Login() http.HandlerFunc {
 
 		token := csrf.Token(r)
 		cookie := &http.Cookie{
-			Name:     "csrf_token",
+			Name:     csrf.CookieName,
 			Value:    token,
-			Expires:  time.Now().Add(1 * time.Minute), // Set expiration time as needed
+			Expires:  time.Now().Add(1 * time.Minute),
 			HttpOnly: true,
 			Secure:   true,
 			SameSite: http.SameSiteLaxMode,
@@ -89,7 +89,7 @@ func (a *OAuth) CallBack() http.HandlerFunc {
 			return
 		}
 
-		expectedCSRF, err := r.Cookie("csrf_token")
+		expectedCSRF, err := r.Cookie(csrf.CookieName)
 		if err == http.ErrNoCookie {
 			http.Error(w, "no csrf cookie error", http.StatusUnauthorized)
 			return
