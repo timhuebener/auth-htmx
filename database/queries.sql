@@ -35,3 +35,37 @@ DELETE FROM credentials WHERE id = ? AND user_id = ?;
 
 -- name: GetCredentialsByUser :many
 SELECT * FROM credentials WHERE user_id = ?;
+
+-- Datapoints
+
+-- name: GetDatapoint :one
+SELECT * FROM datapoints WHERE id = ? LIMIT 1;
+
+-- name: ListDatapointsByUser :many
+SELECT * FROM datapoints WHERE user_id = ? ORDER BY created_at DESC;
+
+-- name: CreateDatapoint :one
+INSERT INTO datapoints (user_id, name) VALUES (?, ?) RETURNING *;
+
+-- name: UpdateDatapointName :one
+UPDATE datapoints SET name = ? WHERE id = ? RETURNING *;
+
+-- name: DeleteDatapoint :exec
+DELETE FROM datapoints WHERE id = ?;
+
+-- Dataentries
+
+-- name: GetDataentry :one
+SELECT * FROM dataentries WHERE id = ? LIMIT 1;
+
+-- name: ListDataentriesByDatapoint :many
+SELECT * FROM dataentries WHERE datapoint_id = ? ORDER BY created_at DESC;
+
+-- name: CreateDataentry :one
+INSERT INTO dataentries (datapoint_id, type, text_value, int_value) VALUES (?, ?, ?, ?) RETURNING *;
+
+-- name: UpdateDataentry :one
+UPDATE dataentries SET type = ?, text_value = ?, int_value = ? WHERE id = ? RETURNING *;
+
+-- name: DeleteDataentry :exec
+DELETE FROM dataentries WHERE id = ?;

@@ -23,6 +23,8 @@ import (
 	"github.com/Darkness4/auth-htmx/auth/webauthn/session/memory"
 	"github.com/Darkness4/auth-htmx/database"
 	"github.com/Darkness4/auth-htmx/database/counter"
+	"github.com/Darkness4/auth-htmx/database/dataentry"
+	"github.com/Darkness4/auth-htmx/database/datapoint"
 	"github.com/Darkness4/auth-htmx/database/user"
 	"github.com/Darkness4/auth-htmx/handler"
 	"github.com/Darkness4/auth-htmx/jwt"
@@ -186,6 +188,18 @@ var app = &cli.Command{
 		cr := counter.NewRepository(d)
 		r.Post("/count", handler.Count(cr))
 
+		dp := datapoint.NewRepository(d)
+		r.Get("/api/datapoints", handler.ListDatapoints(dp))
+		r.Post("/api/datapoints", handler.CreateDatapoint(dp))
+		r.Put("/api/datapoints/{id}", handler.UpdateDatapointName(dp))
+		r.Delete("/api/datapoints/{id}", handler.DeleteDatapoint(dp))
+
+		de := dataentry.NewRepository(d)
+		r.Get("/api/dataentries", handler.ListDataentriesByDatapoint(de))
+		r.Post("/api/dataentries", handler.CreateDataentry(de))
+		r.Put("/api/dataentries/{id}", handler.UpdateDataentry(de))
+		r.Delete("/api/dataentries/{id}", handler.DeleteDataentry(de))
+
 		// Pages rendering
 		var renderFn http.HandlerFunc = func(w http.ResponseWriter, r *http.Request) {
 			path := filepath.Clean(r.URL.Path)
@@ -202,6 +216,7 @@ var app = &cli.Command{
 				// SSR
 				base = "base.htmx"
 			}
+
 			t, err := template.New("base").
 				Funcs(funcs()).
 				ParseFS(html, base, path, "components/*")
@@ -213,6 +228,7 @@ var app = &cli.Command{
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
+
 			if err := t.ExecuteTemplate(w, "base", struct {
 				UserName      string
 				UserID        string
@@ -234,6 +250,14 @@ var app = &cli.Command{
 			}
 		}
 		r.Route("/counter", func(r chi.Router) {
+			r.Use(jwt.Deny)
+			r.Get("/", renderFn)
+		})
+		r.Route("/datapoints", func(r chi.Router) {
+			r.Use(jwt.Deny)
+			r.Get("/", renderFn)
+		})
+		r.Route("/dataentry", func(r chi.Router) {
 			r.Use(jwt.Deny)
 			r.Get("/", renderFn)
 		})

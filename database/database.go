@@ -4,6 +4,7 @@ package database
 import (
 	"database/sql"
 	"embed"
+	"errors"
 	"fmt"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -40,7 +41,7 @@ func InitialMigration(db *sql.DB) error {
 		log.Err(err).Msg("failed to create new db instance")
 		return err
 	}
-	if version, dirty, err := m.Version(); err == migrate.ErrNilVersion {
+	if version, dirty, err := m.Version(); errors.Is(err, migrate.ErrNilVersion) {
 		log.Warn().Msg("No migrations detected. Attempting initial migration...")
 		if err = m.Up(); err != nil {
 			panic(fmt.Errorf("failed to migrate db: %w", err))
