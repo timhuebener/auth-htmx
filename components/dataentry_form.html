@@ -1,0 +1,22 @@
+{{define "DataEntryForm"}}
+<form hx-post="/api/dataentries" hx-swap="none" hx-headers='{"X-CSRF-Token": "{{ .CSRFToken }}"}' hx-vals='{"datapoint_id": "{{ .DatapointID }}"}'>
+  <label>
+    Type
+    <select name="type" required>
+      <option value="" disabled selected>Type</option>
+      <option value="text">text</option>
+      <option value="int">int</option>
+    </select>
+  </label>
+  <label>
+    Text value
+    <input type="text" name="text_value" placeholder="Text value" />
+  </label>
+  <label>
+    Int value
+    <input type="number" name="int_value" placeholder="Int value" />
+  </label>
+  <button type="submit" hx-target="#dataentry-result" hx-swap="innerHTML">Create</button>
+</form>
+<div id="dataentry-result"></div>
+{{ end }}

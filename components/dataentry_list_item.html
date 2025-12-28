@@ -1,0 +1,10 @@
+{{define "DataEntryListItem"}}
+<div id="dataentry-{{ .ID }}">
+  <div>
+    <span>ID: {{ .ID }}</span>
+    <span>Type: {{ .Type }}</span>
+    {{if .TextValue.Valid}}<span>Text: {{ .TextValue.String }}</span>{{end}}
+    {{if .IntValue.Valid}}<span>Int: {{ .IntValue.Int64 }}</span>{{end}}
+  </div>
+</div>
+{{ end }}

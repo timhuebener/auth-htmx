@@ -1,0 +1,18 @@
+{{define "DataPointsListItem"}}
+<div id="datapoint-{{ .ID }}">
+  <div>
+    <span>ID: {{ .ID }}</span>
+    <span>Name: {{ .Name }}</span>
+  </div>
+  <form hx-post="/api/datapoints/{id}" hx-headers='{"X-CSRF-Token": "{{ .CSRFToken }}"}' hx-target="#datapoint-{{ .ID }}" hx-swap="outerHTML">
+    <input type="hidden" name="id" value="{{ .ID }}" />
+    <label>
+      <span>Name</span>
+      <input type="text" name="name" value="{{ .Name }}" required />
+    </label>
+    <button type="submit">Update</button>
+  </form>
+  <button hx-post="/api/datapoints/delete" hx-headers='{"X-CSRF-Token": "{{ .CSRFToken }}"}' hx-vals='{"id": "{{ .ID }}"}' hx-target="#datapoint-{{ .ID }}" hx-swap="outerHTML">Delete</button>
+</div>
+{{ end }}
+

@@ -256,10 +256,8 @@ var app = &cli.Command{
 		r.Route("/datapoints", func(r chi.Router) {
 			r.Use(jwt.Deny)
 			r.Get("/", renderFn)
-		})
-		r.Route("/dataentry", func(r chi.Router) {
-			r.Use(jwt.Deny)
-			r.Get("/", renderFn)
+			r.Get("/{id}", renderFn)
+			r.Get("/{id}/edit", renderFn)
 		})
 		r.Get("/*", renderFn)
 		r.Handle("/static/*", http.FileServer(http.FS(static)))

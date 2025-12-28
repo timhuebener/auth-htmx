@@ -1,0 +1,12 @@
+{{define "DataPointsListItem"}}
+<div id="datapoint-{{ .ID }}">
+  <div>
+    <span>ID: {{ .ID }}</span>
+    <span>Name: {{ .Name }}</span>
+  </div>
+  <div>
+    <a hx-get="/datapoints/{{ .ID }}" hx-target="#datapoint-{{ .ID }}" hx-swap="outerHTML">View</a>
+    <a hx-get="/datapoints/{{ .ID }}/edit" hx-target="#datapoint-{{ .ID }}" hx-swap="outerHTML">Edit</a>
+  </div>
+</div>
+{{ end }}

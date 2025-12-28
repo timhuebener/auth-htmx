@@ -1,0 +1,7 @@
+{{define "DataPointsForm"}}
+<form hx-post="/api/datapoints" hx-swap="none" hx-headers='{"X-CSRF-Token": "{{ .CSRFToken }}"}'>
+  <input type="text" name="name" placeholder="Datapoint name" required />
+  <button type="submit" hx-target="#datapoint-result" hx-swap="innerHTML">Create</button>
+</form>
+<div id="datapoint-result"></div>
+{{ end }}

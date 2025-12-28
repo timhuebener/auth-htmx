@@ -2,11 +2,13 @@ package handler
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 	"strconv"
 
 	"github.com/Darkness4/auth-htmx/database/datapoint"
 	"github.com/Darkness4/auth-htmx/jwt"
+	"github.com/Darkness4/auth-htmx/security/csrf"
 )
 
 func CreateDatapoint(repo *datapoint.Repository) http.HandlerFunc {
@@ -45,6 +47,13 @@ func ListDatapoints(repo *datapoint.Repository) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
+		tpl, err := template.ParseFiles("components/datapoints_list_item.html")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
 		for i, d := range items {
 			if i > 0 {
 				if _, err := fmt.Fprint(w, "\n"); err != nil {
@@ -52,7 +61,15 @@ func ListDatapoints(repo *datapoint.Repository) http.HandlerFunc {
 					return
 				}
 			}
-			if _, err := fmt.Fprintf(w, "%d\t%s", d.ID, d.Name); err != nil {
+			if err := tpl.ExecuteTemplate(w, "DataPointsListItem", struct {
+				ID        int64
+				Name      string
+				CSRFToken string
+			}{
+				ID:        d.ID,
+				Name:      d.Name,
+				CSRFToken: csrf.Token(r),
+			}); err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}

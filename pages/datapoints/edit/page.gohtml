@@ -1,0 +1,30 @@
+{{define "head"}}
+<title>Edit Datapoint - Auth HTMX</title>
+{{ end }}
+
+{{define "body"}}
+<header class="container">
+  {{ template "Nav" . }}
+</header>
+
+<main class="container">
+  <article>
+    <header>
+      <div>Edit Datapoint</div>
+    </header>
+
+    <main>
+      {{ template "DataPointsEdit" . }}
+    </main>
+
+    <footer>
+      <nav hx-boost="true">
+        <ul>
+          <li><a href="/">Go To Home</a></li>
+        </ul>
+      </nav>
+    </footer>
+  </article>
+</main>
+{{ end }}
+

@@ -1,0 +1,11 @@
+{{define "DataPointsItem"}}
+<div id="datapoints-view-{{ .ID }}">
+  <h2>{{ .Name }}</h2>
+  <div id="dataentries">
+    {{range .DataEntries}}
+      {{template "DataEntryListItem" .}}
+    {{end}}
+  </div>
+</div>
+{{ end }}
+

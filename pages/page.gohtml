@@ -221,28 +221,13 @@
 
     <main>
       <h3>Hello {{ .UserName }}!</h3>
+      <section>
+        <h4>Your Datapoints</h4>
+        {{ template "DataPointsList" . }}
+      </section>
     </main>
 
     <footer>
-      <nav hx-boost="true">
-        <ul>
-          <li><a href="/counter">Go To Counter</a></li>
-          {{- if eq .Provider "webauthn" }}
-          <li>
-            <button
-              class="outline"
-              _="on click call addSecurityKey()
-                catch e
-                  call notyf.error(e.message)
-                end"
-              id="webauthn-add-security-key"
-            >
-              Add Additional Security Key
-            </button>
-          </li>
-          {{- end }}
-        </ul>
-      </nav>
       {{- if eq .Provider "webauthn" }}
       <hr />
       <h4>Security Keys</h4>
